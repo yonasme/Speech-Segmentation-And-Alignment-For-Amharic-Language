@@ -1,0 +1,1 @@
+# Speech-Segmentation-for-Amharic-language
