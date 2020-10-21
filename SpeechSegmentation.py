@@ -13,21 +13,23 @@ textpath=""
 speechpath=""
 entryText=tk.StringVar()
 entryspeech=tk.StringVar()
-tk.Label(root,text="Choose Text File").grid(row=0)
-tk.Label(root,text="Choose Speech File").grid(row=1)
+tk.Label(root,text="Choose Text File").grid(row=1)
+tk.Label(root,text="Choose Speech File").grid(row=2)
 e1=tk.Entry(root,width=70,textvariable=entryText)
-e1.grid(row=0,column=1)
+e1.grid(row=1,column=1)
 e2=tk.Entry(root,width=70,textvariable=entryspeech)
-e2.grid(row=1,column=1)
+e2.grid(row=2,column=1)
+title=Label(root, text="Amharic Speech Segmenter and Aligner System",font=44)
+title.grid(row=0,column=1)
 
 def opentext():
-    root.textfilename=filedialog.askopenfilename(initialdir="C:/",title="select File")
+    root.textfilename=filedialog.askopenfilename(initialdir="C:/",title="select File",filetypes=[("Text files",".txt")])
     textpath=root.textfilename
     entryText.set(textpath)
     #e1.insert(50,str(textpath))
 
 def openwav():
-    root.speechfilename=filedialog.askopenfilename(initialdir="C:/",title="select File")
+    root.speechfilename=filedialog.askopenfilename(initialdir="C:/",title="select File",filetypes=[("Wav files",".wav")])
     speechpath=root.speechfilename
     entryspeech.set(speechpath)
     #e2.insert(50,str(speechpath))
@@ -35,8 +37,10 @@ def openwav():
 def g2p():
 
     path1=e1.get()
-    print(path1)
-    path2='converted.txt'
+    fname=os.path.basename(path1)
+    size=len(fname)
+    path2=path1[:len(path1)-size]+"converted.txt"
+    
     file = open(str(path1), "r", encoding='utf-8')
     out =  open(path2, "w+", encoding='utf-8')
     count=1
@@ -159,23 +163,33 @@ def g2p():
 
     file.close()
     out.close()
+   
 
-    path1='converted.txt'
-    path2='prompt.txt'
+    temppath=e1.get()
+    fname=os.path.basename(temppath)
+    size=len(fname)
+    path1=temppath[:len(temppath)-size]+"converted.txt"
+    path2=temppath[:len(temppath)-size]+"prompt.txt"
 
     file = open(path1, "r", encoding='utf-8')
     out =  open(path2, "w+", encoding='utf-8')
-    num=1
+    intext=e1.get()
+    fname=os.path.basename(intext)
+    size=len(fname)
+    promptname=fname[:size-4]
     lines=file.readlines()
     for line in lines:
-     out.write("*/"+str(num)+" "+line)
-     num=num+1
+     out.write("*/"+str(promptname)+" "+line)
+
 
     file.close()
     out.close()
 
-    path1='prompt.txt'
-    path2='words.mlf'
+    temppath=e1.get()
+    fname=os.path.basename(temppath)
+    size=len(fname)
+    path1=temppath[:len(temppath)-size]+"prompt.txt"
+    path2=temppath[:len(temppath)-size]+"words.mlf"
 
     file = open(path1, "r", encoding='utf-8')
     out =  open(path2, "w+", encoding='utf-8')
@@ -194,9 +208,17 @@ def g2p():
     my_label.grid(row=4,column=1)
 
 def makedic():
-    print(os.popen("perl prompts2wlist prompt.txt wordlist").read())
-    file = open("wordlist", "r", encoding='utf-8')
-    out =  open("dicts", "w+", encoding='utf-8')
+    
+    temppath=e1.get()
+    fname=os.path.basename(temppath)
+    size=len(fname)
+    path1=temppath[:len(temppath)-size]+"prompt.txt"
+    path2=temppath[:len(temppath)-size]+"wordlist"
+    path3=temppath[:len(temppath)-size]+"dicts"
+    
+    print(os.popen("perl prompts2wlist "+path1+" "+path2+" ").read())
+    file = open(path2, "r", encoding='utf-8')
+    out =  open(path3, "w+", encoding='utf-8')
 
     lines=file.readlines()
     for line in lines:
@@ -235,11 +257,16 @@ def makedic():
     my_label.grid(row=5,column=1)
     
 def toTG():
-    tname=e1.get()
-    size=len(tname)
-    path=tname[:size-4]
-    file=open(path+".rec",'r')
-    out=open(path+".TextGrid",'a',encoding='utf-8')
+
+    temppath=e1.get()
+    fname=os.path.basename(temppath)
+    size=len(fname)
+    path1=temppath[:len(temppath)-size]+fname[:size-3]+"rec"
+    path2=temppath[:len(temppath)-size]+fname[:size-3]+"TextGrid"
+    
+ 
+    file=open(path1,'r')
+    out=open(path2,'a',encoding='utf-8')
     linelist=file.readlines()
     count=0
     for line in linelist:
@@ -326,39 +353,34 @@ def toTG():
     intext=e1.get()
     inwav=e2.get()
     size=len(intext)
-    tname=inwav[:size-3]+"TextGrid"
     filename=os.path.basename(e2.get())
+    tname=intext[:size-3]+"TextGrid"
     my_label=Label(root, text="Multi-Tier TextGrid File Generated for "+filename+" ")
     my_label.grid(row=6,column=1)
     print(os.popen('"C:/Program Files/Praat.exe" --open '+inwav+' '+tname+' ').read())
     
-def speechenhancment():
-   inwav=e2.get()
-   fname=os.path.basename(inwav)
-   outwav=e2.get()    
-   size=len(inwav)
-   temp=inwav[:size-5]+"temp.wav"
-   print(os.popen("ctucopy4 -preset exten -fs 16000 -format_in wave -format_out wave -i "+inwav+" -o "+temp+" -v").read())
-   print(os.popen("rm "+inwav+" ").read())
-   print(os.popen("mv "+temp+" "+inwav+" ").read())
-   my_label=Label(root, text="Speech Enhancment Performed On"+fname+" ")
-   my_label.grid(row=7,column=1)
    
 def featurevector():
-    inwav=e2.get()
-    fname=os.path.basename(inwav)
-    size=len(inwav)
-    mfc=inwav[:size-3]+"mfc"
-    print(os.popen("HCopy -T 1 -C config "+inwav+" "+mfc+" ").read())
+
+    temppath=e1.get()
+    fname=os.path.basename(temppath)
+    size=len(fname)
+    path1=temppath[:len(temppath)-size]+fname[:size-3]+"wav"
+    path2=temppath[:len(temppath)-size]+fname[:size-3]+"mfc"
+    
+    print(os.popen("HCopy -T 1 -C config "+path1+" "+path2+" ").read())
     my_label=Label(root, text="MFCC Feature Vectors Extracted from"+fname+" ")
     my_label.grid(row=8,column=1)
     
 def forcedalignment():
-    inwav=e2.get()
-    fname=os.path.basename(inwav)
-    size=len(inwav)
-    mfc=inwav[:size-3]+"mfc"
-    print(os.popen("HVite -a -b silence -m -o S -I words.mlf -H c:/Users/Yonas/Desktop/Research/train/mono2/hmmdefs dicts c:/Users/Yonas/Desktop/Research/train/monophones1 "+mfc+" ").read())
+    
+    temppath=e1.get()
+    fname=os.path.basename(temppath)
+    size=len(fname)
+    path1=temppath[:len(temppath)-size]+fname[:size-3]+"mfc"
+    
+    
+    print(os.popen("HVite -a -b silence -m -o S -I words.mlf -H c:/Users/Yonas/Desktop/Research/train/mono2/hmmdefs dicts c:/Users/Yonas/Desktop/Research/train/monophones1 "+path1+" ").read())
     my_label=Label(root, text="Speech Segmentation Tasked Performed On"+fname+" Succesfully")
     my_label.grid(row=9,column=1)
     
@@ -366,15 +388,16 @@ def performsegmentation():
     print(textpath)
     g2p()
     makedic()
-    speechenhancment()
     featurevector()
     forcedalignment()
     toTG()
 
-myButton1=Button(root,text="Open File",command=opentext).grid(row=0,column=2)
-myButton2=Button(root,text="Open File",command=openwav).grid(row=1,column=2)
-myButton3=Button(root,text="Get Segmented Boundaries",command=performsegmentation).grid(row=2,column=1)
+myButton1=Button(root,text="Open File",command=opentext).grid(row=1,column=2)
+myButton2=Button(root,text="Open File",command=openwav).grid(row=2,column=2)
+myButton3=Button(root,text="Perform Segmentation",command=performsegmentation).grid(row=3,column=1)
 
 
 root.mainloop()
+
+
 
