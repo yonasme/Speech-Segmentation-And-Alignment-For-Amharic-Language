@@ -380,7 +380,7 @@ def forcedalignment():
     path1=temppath[:len(temppath)-size]+fname[:size-3]+"mfc"
     
     
-    print(os.popen("HVite -a -b silence -m -o S -I words.mlf -H c:/Users/Yonas/Desktop/Research/train/mono2/hmmdefs dicts c:/Users/Yonas/Desktop/Research/train/monophones1 "+path1+" ").read())
+    print(os.popen("HVite -a -b silence -m -o S -I words.mlf -H mono2/hmmdefs dicts monophones1 "+path1+" ").read())
     my_label=Label(root, text="Speech Segmentation Tasked Performed On"+fname+" Succesfully")
     my_label.grid(row=9,column=1)
     
